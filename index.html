@@ -297,7 +297,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
 <div id="app">
   <div class="admin-bar" id="admin-bar" style="display:none;">
     <span style="display:flex;align-items:center;gap:10px;">
-      <img id="music-btn" onclick="toggleMusic()" src="assets/btn-play.png" style="width:32px;height:32px;cursor:pointer;opacity:0.9;transition:opacity .2s;border-radius:50%;" title="Música" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
+      <img id="music-btn" onclick="toggleMusic()" src="assets/btn-play.png" style="width:32px;height:32px;cursor:pointer;opacity:0.9;transition:opacity .2s;border-radius:50%;vertical-align:middle;display:block;" title="Música" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
       ⚙️ Admin: <strong id="admin-name"></strong>
     </span>
     <div style="display:flex;gap:10px;align-items:center;">
@@ -306,17 +306,17 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
         📂 Cargar CSV
         <input type="file" accept=".csv" style="display:none" onchange="loadCsvManual(event)">
       </label>
-      <button onclick="doLogout()">Cerrar sesión</button>
+      <img onclick="doLogout()" src="assets/btn-power.png" style="width:32px;height:32px;cursor:pointer;opacity:0.9;transition:opacity .2s;border-radius:50%;display:block;" title="Cerrar sesión" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
     </div>
   </div>
   <div class="visitor-bar" id="visitor-bar" style="background:rgba(37,168,82,.08);border-bottom:1px solid rgba(37,168,82,.2);padding:8px 20px;display:none;align-items:center;justify-content:space-between;font-size:13px;">
     <span style="display:flex;align-items:center;gap:8px;">
-      <img id="music-btn-visitor" onclick="toggleMusic()" src="assets/btn-play.png" style="width:32px;height:32px;cursor:pointer;opacity:0.9;transition:opacity .2s;border-radius:50%;" title="Música" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
+      <img id="music-btn-visitor" onclick="toggleMusic()" src="assets/btn-play.png" style="width:32px;height:32px;cursor:pointer;opacity:0.9;transition:opacity .2s;border-radius:50%;vertical-align:middle;display:block;" title="Música" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
       <span style="color:var(--green-light);font-weight:700;letter-spacing:2px;font-size:13px;display:flex;align-items:center;gap:6px;">
         <img src="assets/msn.gif" style="width:22px;height:22px;"> Visitante
       </span>
     </span>
-    <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Salir</button>
+    <img onclick="doLogout()" src="assets/btn-power.png" style="width:32px;height:32px;cursor:pointer;opacity:0.9;transition:opacity .2s;border-radius:50%;display:block;" title="Salir" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
   </div>
 
   <header>
@@ -633,6 +633,12 @@ document.getElementById('login-pass').addEventListener('keydown', e => { if(e.ke
 document.getElementById('login-user').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 function doLogout() {
+  // Stop music
+  if(bgMusic) {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+    musicPlaying = false;
+  }
   currentAdmin = null;
   saveState();
   document.getElementById('app').style.display = 'none';
