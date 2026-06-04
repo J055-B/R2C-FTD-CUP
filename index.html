@@ -57,6 +57,9 @@ body{
 }
 .btn-gold:hover{background:var(--gold-dark);}
 .login-error{color:#ff6b6b;font-size:12px;margin-top:8px;display:none;}
+.btn-visitor{width:100%;padding:11px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;margin-top:6px;letter-spacing:1px;transition:all .2s;}
+.btn-visitor:hover{border-color:var(--green-light);color:var(--green-light);}
 
 /* =========== MAIN APP =========== */
 #app{display:none;}
@@ -78,6 +81,10 @@ h1{font-family:'Bebas Neue',cursive;font-size:clamp(42px,8vw,80px);letter-spacin
 .admin-bar button{background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);
   padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;}
 .admin-bar button:hover{background:rgba(255,255,255,.1);}
+body.visitor-mode .btn-add,
+body.visitor-mode .btn-remove,
+body.visitor-mode .edit-team-btn{ display:none !important; }
+body.visitor-mode .team-name-editable{ pointer-events:none; }
 
 .container{max-width:980px;margin:0 auto;padding:0 20px 60px;}
 
@@ -272,6 +279,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     <input type="text" id="login-user" placeholder="Usuario" autocomplete="username">
     <input type="password" id="login-pass" placeholder="Contraseña" autocomplete="current-password">
     <button class="btn-gold" onclick="doLogin()">Ingresar</button>
+    <button class="btn-visitor" onclick="enterAsVisitor()">👁️ Entrar como visitante</button>
     <p class="login-error" id="login-error">Usuario o contraseña incorrectos</p>
   </div>
   <p style="font-size:11px;opacity:.3;letter-spacing:1px;">FTD Cup · El Mundial de las Ventas</p>
@@ -279,7 +287,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
 
 <!-- ====== MAIN APP ====== -->
 <div id="app">
-  <div class="admin-bar">
+  <div class="admin-bar" id="admin-bar" style="display:none;">
     <span>⚙️ Admin: <strong id="admin-name"></strong></span>
     <div style="display:flex;gap:10px;align-items:center;">
       <button onclick="fetchSheetData()">🔄 Actualizar datos</button>
@@ -289,6 +297,10 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       </label>
       <button onclick="doLogout()">Cerrar sesión</button>
     </div>
+  </div>
+  <div class="visitor-bar" id="visitor-bar" style="background:rgba(37,168,82,.08);border-bottom:1px solid rgba(37,168,82,.2);padding:8px 20px;display:none;align-items:center;justify-content:space-between;font-size:13px;">
+    <span style="color:var(--green-light);">👁️ Modo visitante — solo lectura</span>
+    <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Salir</button>
   </div>
 
   <header>
@@ -318,7 +330,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
           <div>
             <input class="team-name-editable" id="team-paola-name" value="Team Paola" readonly>
           </div>
-          <button onclick="editTeamName('paola')" style="background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:14px;margin-left:auto;" title="Editar nombre">✏️</button>
+          <button onclick="editTeamName('paola')" class="edit-team-btn" style="background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:14px;margin-left:auto;" title="Editar nombre">✏️</button>
         </div>
         <div class="team-score-big" id="score-paola">0 FTDs</div>
         <div id="players-paola"></div>
@@ -332,7 +344,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
           <div>
             <input class="team-name-editable" id="team-nicole-name" value="Team Nicole" readonly>
           </div>
-          <button onclick="editTeamName('nicole')" style="background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:14px;margin-left:auto;" title="Editar nombre">✏️</button>
+          <button onclick="editTeamName('nicole')" class="edit-team-btn" style="background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:14px;margin-left:auto;" title="Editar nombre">✏️</button>
         </div>
         <div class="team-score-big" id="score-nicole">0 FTDs</div>
         <div id="players-nicole"></div>
@@ -566,10 +578,23 @@ function doLogin() {
     document.getElementById('admin-name').textContent = user;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    document.getElementById('admin-bar').style.display = 'flex';
+    document.getElementById('visitor-bar').style.display = 'none';
+    document.body.classList.remove('visitor-mode');
     init();
   } else {
     document.getElementById('login-error').style.display = 'block';
   }
+}
+
+function enterAsVisitor() {
+  currentAdmin = null;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('admin-bar').style.display = 'none';
+  document.getElementById('visitor-bar').style.display = 'flex';
+  document.body.classList.add('visitor-mode');
+  init();
 }
 
 document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
@@ -580,6 +605,9 @@ function doLogout() {
   saveState();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-bar').style.display = 'none';
+  document.getElementById('visitor-bar').style.display = 'none';
+  document.body.classList.remove('visitor-mode');
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').style.display = 'none';
@@ -906,13 +934,20 @@ function editTeamName(team) {
     inp.readOnly = false;
     inp.focus();
     inp.style.borderBottom = '1px solid var(--gold)';
+    inp.onkeydown = (e) => { if(e.key === 'Enter') { e.preventDefault(); saveTeamName(team); } };
   } else {
-    inp.readOnly = true;
-    inp.style.borderBottom = 'none';
-    teams[team].name = inp.value;
-    saveState();
-    updateScoreboardNames();
+    saveTeamName(team);
   }
+}
+
+function saveTeamName(team) {
+  const inp = document.getElementById(`team-${team}-name`);
+  inp.readOnly = true;
+  inp.style.borderBottom = 'none';
+  inp.onkeydown = null;
+  teams[team].name = inp.value;
+  saveState();
+  updateScoreboardNames();
 }
 
 function renderPlayers() {
