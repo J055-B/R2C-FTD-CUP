@@ -24,6 +24,7 @@ body{
   color:var(--white);
   font-family:'Inter',sans-serif;
   min-height:100vh;
+  padding-bottom:38px;
   background-image:
     radial-gradient(ellipse at 10% 20%,rgba(26,122,60,.3) 0%,transparent 50%),
     radial-gradient(ellipse at 90% 80%,rgba(37,168,82,.15) 0%,transparent 50%),
@@ -288,7 +289,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     <p class="login-error" id="login-error">Usuario o contraseña incorrectos</p>
   </div>
   <p style="font-size:11px;opacity:.3;letter-spacing:1px;">El Mundial de las Ventas</p>
-</div>
+
 
 <!-- ====== MAIN APP ====== -->
 <div id="app">
@@ -515,20 +516,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
   </div>
   <footer>FTD Cup · <span id="footer-month"></span> · ¡Que gane el mejor equipo! ⚽</footer>
 
-<div style="background:rgba(0,0,0,.4);border-top:1px solid rgba(245,197,24,.2);padding:10px 0;overflow:hidden;white-space:nowrap;position:relative;">
-  <div style="display:inline-block;animation:marquee 45s linear infinite;padding-left:100%;">
-    <span style="font-size:12px;color:rgba(255,255,255,.6);letter-spacing:1px;">
-      🪐 El Mundial de las Ventas es una marca registrada y patrocinada por <strong style="color:var(--gold);">Callisto The Internet Planet</strong> 🪐 &nbsp;&nbsp;·&nbsp;&nbsp;
-      Creado y dirigido por <strong style="color:var(--gold);">Adriana Mizrahi</strong> 🥇 &nbsp;&nbsp;·&nbsp;&nbsp;
-      Diseñado y pulido por <strong style="color:var(--gold);">Jos B.</strong> 💣 &nbsp;&nbsp;·&nbsp;&nbsp;
-      Con mucho cariño para uds ♥ &nbsp;&nbsp;·&nbsp;&nbsp;
-      PD: recuerden mirar a ambos lados antes de cruzar la calle y nunca metan los dedos en los enchufes xD &nbsp;&nbsp;·&nbsp;&nbsp;
-      📢 <em>Espacio publicitario libre — comunicarse al <strong style="color:var(--gold);">0800-888-YO TAMBIEN QUIERO SER MILLONARIO.com</strong></em>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    </span>
-  </div>
-</div>
-</div>
+
 
 <!-- ADD PLAYER MODAL -->
 <div class="modal-overlay" id="add-modal">
@@ -1174,5 +1162,18 @@ function updateMusicBtn() {
   if(btn2) btn2.textContent = playing;
 }
 </script>
+<div id="global-banner" style="position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.85);border-top:1px solid rgba(245,197,24,.3);padding:8px 0;overflow:hidden;white-space:nowrap;z-index:9999;">
+  <div style="display:inline-block;animation:marquee 45s linear infinite;padding-left:100%;">
+    <span style="font-size:12px;color:rgba(255,255,255,.65);letter-spacing:1px;">
+      🪐 El Mundial de las Ventas es una marca registrada y patrocinada por <strong style="color:#f5c518;">Callisto The Internet Planet</strong> 🪐 &nbsp;&nbsp;·&nbsp;&nbsp;
+      Creado y dirigido por <strong style="color:#f5c518;">Adriana Mizrahi</strong> 🥇 &nbsp;&nbsp;·&nbsp;&nbsp;
+      Diseñado y pulido por <strong style="color:#f5c518;">Jos B.</strong> 💣 &nbsp;&nbsp;·&nbsp;&nbsp;
+      Con mucho cariño para uds ♥ &nbsp;&nbsp;·&nbsp;&nbsp;
+      PD: recuerden mirar a ambos lados antes de cruzar la calle y nunca metan los dedos en los enchufes xD &nbsp;&nbsp;·&nbsp;&nbsp;
+      📢 <em>Espacio publicitario libre — comunicarse al <strong style="color:#f5c518;">0800-888-YO TAMBIEN QUIERO SER MILLONARIO.com</strong></em>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </span>
+  </div>
+</div>
 </body>
 </html>
