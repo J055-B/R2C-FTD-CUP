@@ -66,6 +66,7 @@ body{
 header{text-align:center;padding:40px 20px 20px;position:relative;}
 .trophy-icon{font-size:56px;display:block;animation:bounce 2s infinite;}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 h1{font-family:'Bebas Neue',cursive;font-size:clamp(42px,8vw,80px);letter-spacing:4px;
   background:linear-gradient(135deg,var(--gold),#fff 50%,var(--gold));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin:8px 0;}
@@ -286,14 +287,14 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     <button class="btn-visitor" onclick="enterAsVisitor()">👁️ Entrar como visitante</button>
     <p class="login-error" id="login-error">Usuario o contraseña incorrectos</p>
   </div>
-  <p style="font-size:11px;opacity:.3;letter-spacing:1px;">FTD Cup · El Mundial de las Ventas</p>
+  <p style="font-size:11px;opacity:.3;letter-spacing:1px;">El Mundial de las Ventas</p>
 </div>
 
 <!-- ====== MAIN APP ====== -->
 <div id="app">
   <div class="admin-bar" id="admin-bar" style="display:none;">
     <span style="display:flex;align-items:center;gap:10px;">
-      <button id="music-btn" onclick="toggleMusic()" style="background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px;" title="Música">🔇</button>
+      <button id="music-btn" onclick="toggleMusic()" style="background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px;" title="Música">⏹</button>
       ⚙️ Admin: <strong id="admin-name"></strong>
     </span>
     <div style="display:flex;gap:10px;align-items:center;">
@@ -306,7 +307,10 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     </div>
   </div>
   <div class="visitor-bar" id="visitor-bar" style="background:rgba(37,168,82,.08);border-bottom:1px solid rgba(37,168,82,.2);padding:8px 20px;display:none;align-items:center;justify-content:space-between;font-size:13px;">
-    <span style="color:var(--green-light);">👁️ Modo visitante — solo lectura</span>
+    <span style="display:flex;align-items:center;gap:8px;">
+      <button id="music-btn-visitor" onclick="toggleMusic()" style="background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px;" title="Música">⏹</button>
+      <span style="color:var(--green-light);font-weight:700;letter-spacing:2px;font-size:13px;">👥 Visitante</span>
+    </span>
     <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Salir</button>
   </div>
 
@@ -510,6 +514,20 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
 
   </div>
   <footer>FTD Cup · <span id="footer-month"></span> · ¡Que gane el mejor equipo! ⚽</footer>
+
+<div style="background:rgba(0,0,0,.4);border-top:1px solid rgba(245,197,24,.2);padding:10px 0;overflow:hidden;white-space:nowrap;position:relative;">
+  <div style="display:inline-block;animation:marquee 45s linear infinite;padding-left:100%;">
+    <span style="font-size:12px;color:rgba(255,255,255,.6);letter-spacing:1px;">
+      🪐 El Mundial de las Ventas es una marca registrada y patrocinada por <strong style="color:var(--gold);">Callisto The Internet Planet</strong> 🪐 &nbsp;&nbsp;·&nbsp;&nbsp;
+      Creado y dirigido por <strong style="color:var(--gold);">Adriana Mizrahi</strong> 🥇 &nbsp;&nbsp;·&nbsp;&nbsp;
+      Diseñado y pulido por <strong style="color:var(--gold);">Jos B.</strong> 💣 &nbsp;&nbsp;·&nbsp;&nbsp;
+      Con mucho cariño para uds ♥ &nbsp;&nbsp;·&nbsp;&nbsp;
+      PD: recuerden mirar a ambos lados antes de cruzar la calle y nunca metan los dedos en los enchufes xD &nbsp;&nbsp;·&nbsp;&nbsp;
+      📢 <em>Espacio publicitario libre — comunicarse al <strong style="color:var(--gold);">0800-888-YO TAMBIEN QUIERO SER MILLONARIO.com</strong></em>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </span>
+  </div>
+</div>
 </div>
 
 <!-- ADD PLAYER MODAL -->
@@ -1127,15 +1145,21 @@ function startMusic() {
   bgMusic.play().then(() => {
     musicPlaying = true;
     updateMusicBtn();
-  }).catch(e => console.warn('Audio play failed:', e));
+  }).catch(e => {
+    console.warn('Audio play failed:', e);
+    musicPlaying = false;
+    updateMusicBtn();
+  });
 }
 
 function toggleMusic() {
   if(!bgMusic) return;
   if(musicPlaying) {
     bgMusic.pause();
+    bgMusic.currentTime = 0;
     musicPlaying = false;
   } else {
+    bgMusic.currentTime = 0;
     bgMusic.play();
     musicPlaying = true;
   }
@@ -1143,8 +1167,11 @@ function toggleMusic() {
 }
 
 function updateMusicBtn() {
-  const btn = document.getElementById('music-btn');
-  if(btn) btn.textContent = musicPlaying ? '🔊' : '🔇';
+  const playing = musicPlaying ? '▶️' : '⏹';
+  const btn1 = document.getElementById('music-btn');
+  const btn2 = document.getElementById('music-btn-visitor');
+  if(btn1) btn1.textContent = playing;
+  if(btn2) btn2.textContent = playing;
 }
 </script>
 </body>
