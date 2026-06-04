@@ -188,14 +188,44 @@ h1{font-family:'Bebas Neue',cursive;font-size:clamp(42px,8vw,80px);letter-spacin
 .winner-row{background:rgba(245,197,24,.07);}
 
 /* =========== PRIZES =========== */
-.prizes-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.prizes-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
 @media(max-width:600px){.prizes-grid{grid-template-columns:1fr;}}
-.prize-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px 18px;text-align:center;}
-.prize-icon{font-size:32px;display:block;margin-bottom:10px;}
-.prize-title{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:rgba(255,255,255,.7);margin-bottom:6px;}
-.prize-amount{font-family:'Bebas Neue',cursive;font-size:32px;color:var(--gold);line-height:1;}
-.prize-desc{font-size:11px;opacity:.5;margin-top:6px;line-height:1.5;}
-.prize-1{background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.3);grid-column:1/-1;}
+.prize-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:28px 20px;text-align:center;transition:transform .2s;}
+.prize-card:hover{transform:translateY(-3px);}
+.prize-icon{font-size:44px;display:block;margin-bottom:12px;}
+.prize-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;color:rgba(255,255,255,.75);margin-bottom:8px;}
+.prize-amount{font-family:'Bebas Neue',cursive;font-size:48px;color:var(--gold);line-height:1;}
+.prize-desc{font-size:12px;opacity:.55;margin-top:8px;line-height:1.6;}
+.prize-1{
+  background:linear-gradient(135deg,rgba(245,197,24,.18),rgba(201,160,0,.08));
+  border:1.5px solid rgba(245,197,24,.5);
+  grid-column:1/-1;
+  padding:36px 28px;
+  position:relative;
+  overflow:hidden;
+}
+.prize-1::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(245,197,24,.04) 18px,rgba(245,197,24,.04) 19px);
+}
+.prize-1 .prize-icon{font-size:64px;animation:bounce 2s infinite;}
+.prize-1 .prize-title{font-size:26px;letter-spacing:4px;color:rgba(255,255,255,.85);}
+.prize-1 .prize-amount{font-size:72px;text-shadow:0 0 40px rgba(245,197,24,.5);}
+.prize-1 .prize-desc{font-size:14px;opacity:.65;}
+@keyframes shimmer{
+  0%{background-position:-400px 0}
+  100%{background-position:400px 0}
+}
+.prize-1 .prize-amount{
+  background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);
+  background-size:400px 100%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:shimmer 3s infinite linear;
+}
 
 .total-budget{
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
@@ -378,42 +408,49 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     </div>
 
     <div class="prizes-grid">
+
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
         <div class="prize-amount">700 ILS</div>
         <div class="prize-desc">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
-      <div class="prize-card" style="background:rgba(37,168,82,.12);border-color:rgba(37,168,82,.25);">
+
+      <div class="prize-card" style="background:linear-gradient(135deg,rgba(37,168,82,.2),rgba(13,31,20,.6));border:1.5px solid rgba(37,168,82,.4);">
         <span class="prize-icon">⚽</span>
         <div class="prize-title">MVP del Mes</div>
-        <div class="prize-amount">400 ILS</div>
+        <div class="prize-amount" style="font-size:48px;">400 ILS</div>
         <div class="prize-desc">El vendedor individual con más FTDs en todo el mes, de cualquier equipo</div>
       </div>
-      <div class="prize-card" style="background:rgba(192,57,43,.12);border-color:rgba(192,57,43,.25);">
+
+      <div class="prize-card" style="background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(13,31,20,.6));border:1.5px solid rgba(192,57,43,.4);">
         <span class="prize-icon">🌟</span>
         <div class="prize-title">Revelación</div>
-        <div class="prize-amount">200 ILS</div>
+        <div class="prize-amount" style="font-size:48px;">200 ILS</div>
         <div class="prize-desc">Mejor vendedor Junior del mes. El que más creció vs. su promedio anterior</div>
       </div>
-      <div class="prize-card" style="background:rgba(26,122,60,.12);border-color:rgba(37,168,82,.25);">
+
+      <div class="prize-card" style="background:linear-gradient(135deg,rgba(26,122,60,.2),rgba(13,31,20,.6));border:1.5px solid rgba(37,168,82,.35);">
         <span class="prize-icon">📅</span>
         <div class="prize-title">Bonos Semanales</div>
-        <div class="prize-amount">600 ILS</div>
-        <div class="prize-desc">200 ILS/semana (sem 1-3) para el equipo con más FTDs. Dividido entre todos (~28 ILS c/u)</div>
+        <div class="prize-amount" style="font-size:48px;">600 ILS</div>
+        <div class="prize-desc">200 ILS/semana (sem 1-3) para el equipo con más FTDs esa semana. Dividido entre los 7 integrantes (~28 ILS c/u)</div>
       </div>
-      <div class="prize-card" style="background:rgba(192,57,43,.12);border-color:rgba(192,57,43,.25);">
+
+      <div class="prize-card" style="background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(13,31,20,.6));border:1.5px solid rgba(192,57,43,.35);">
         <span class="prize-icon">🎯</span>
         <div class="prize-title">Hat-Trick</div>
-        <div class="prize-amount">200 ILS</div>
+        <div class="prize-amount" style="font-size:48px;">200 ILS</div>
         <div class="prize-desc">Bono individual para quien logre 3+ FTDs en un solo día, cualquier semana</div>
       </div>
-      <div class="prize-card" style="background:rgba(245,197,24,.07);border-color:rgba(245,197,24,.2);">
+
+      <div class="prize-card" style="background:linear-gradient(135deg,rgba(245,197,24,.12),rgba(13,31,20,.6));border:1.5px solid rgba(245,197,24,.3);">
         <span class="prize-icon">🎊</span>
         <div class="prize-title">Celebración Final</div>
-        <div class="prize-amount">400 ILS</div>
+        <div class="prize-amount" style="font-size:48px;">400 ILS</div>
         <div class="prize-desc">Evento/cena de cierre para todo el equipo al final del mes (todos participan)</div>
       </div>
+
     </div>
 
     <div class="total-budget">
@@ -496,19 +533,18 @@ function getDaysInMonth(year, month){ return new Date(year, month+1, 0).getDate(
 
 function getWeeksOfMonth(year, month) {
   const daysInMonth = getDaysInMonth(year, month);
-  const weeks = [];
   const titles = ['⚽ Fase de Grupos','🥊 Octavos','🔥 Cuartos','🏆 Gran Final'];
   const prizes = ['200 ILS','200 ILS','200 ILS','⭐ Gran Premio'];
-  let day = 1;
-  let weekNum = 1;
-  while(day <= daysInMonth) {
-    const start = day;
-    const end = Math.min(day + 6, daysInMonth);
-    weeks.push({ num: weekNum, start, end, title: titles[weekNum-1]||'Semana '+weekNum, prize: prizes[weekNum-1]||'' });
-    day = end + 1;
-    weekNum++;
-  }
-  return weeks;
+  // Always exactly 4 weeks: weeks 1-3 are 7 days, week 4 gets the rest
+  const starts = [1, 8, 15, 22];
+  const ends   = [7, 14, 21, daysInMonth];
+  return starts.map((s, i) => ({
+    num: i + 1,
+    start: s,
+    end: ends[i],
+    title: titles[i],
+    prize: prizes[i]
+  }));
 }
 
 function getCurrentWeekNum(weeks) {
@@ -1010,6 +1046,11 @@ function loadCsvManual(event) {
 document.getElementById('add-modal').addEventListener('click', function(e) {
   if(e.target === this) closeModal();
 });
+
+// Auto-refresh data every 5 minutes
+setInterval(() => {
+  if(currentAdmin) fetchSheetData();
+}, 5 * 60 * 1000);
 </script>
 </body>
 </html>
