@@ -299,7 +299,8 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
   <div class="admin-bar" id="admin-bar" style="display:none;">
     <span style="display:flex;align-items:center;gap:10px;">
       <img id="music-btn" onclick="toggleMusic()" src="assets/btn-play.png" style="width:32px;height:32px;cursor:pointer;opacity:0.9;transition:opacity .2s;border-radius:50%;vertical-align:middle;display:block;" title="Música" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.9">
-      ⚙️ Admin: <strong id="admin-name"></strong>
+      <img id="admin-avatar" src="" style="width:28px;height:28px;border-radius:50%;display:none;">
+      Admin: <strong id="admin-name"></strong>
     </span>
     <div style="display:flex;gap:10px;align-items:center;">
       <button onclick="fetchSheetData()">🔄 Actualizar datos</button>
@@ -457,7 +458,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       </div>
 
       <div class="prize-card" style="background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(13,31,20,.6));border:1.5px solid rgba(192,57,43,.4);">
-        <span class="prize-icon">🌟</span>
+        <span class="prize-icon" style="filter:drop-shadow(0 0 8px rgba(245,197,24,.8));">⭐</span>
         <div class="prize-title">Revelación</div>
         <div class="prize-amount" style="font-size:48px;">200 ILS</div>
         <div class="prize-desc">Mejor vendedor Junior del mes. El que más creció vs. su promedio anterior</div>
@@ -607,6 +608,13 @@ function doLogin() {
   if(ADMINS[user] && ADMINS[user] === pass) {
     currentAdmin = user;
     document.getElementById('admin-name').textContent = user;
+    // Set avatar
+    const avatarMap = { 'Joss': 'assets/avatar-joss.gif', 'Adri': 'assets/avatar-adri.gif' };
+    const avatarEl = document.getElementById('admin-avatar');
+    if(avatarMap[user]) {
+      avatarEl.src = avatarMap[user];
+      avatarEl.style.display = 'inline-block';
+    }
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('admin-bar').style.display = 'flex';
