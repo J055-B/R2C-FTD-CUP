@@ -270,7 +270,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
 <div id="login-screen">
   <div style="text-align:center;margin-bottom:-8px;">
     <span style="font-size:52px;">🏆</span>
-    <h1 style="font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:4px;background:linear-gradient(135deg,#f5c518,#fff 50%,#f5c518);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">FTD CUP</h1>
+    <h1 style="font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:4px;background:linear-gradient(90deg,#f5c518 25%,#fff 50%,#f5c518 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s infinite linear;">FTD CUP</h1>
     <p style="font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#25a852;">Panel de Administración</p>
   </div>
   <div class="login-box">
@@ -304,7 +304,11 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
   </div>
 
   <header>
-    <span class="trophy-icon">🏆</span>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0px;">
+      <img src="flag-left.gif" alt="" style="width:110px;opacity:0.9;margin-right:-10px;margin-top:10px;">
+      <span class="trophy-icon">🏆</span>
+      <img src="flag-right.gif" alt="" style="width:110px;opacity:0.9;margin-left:-10px;margin-top:10px;">
+    </div>
     <p class="subtitle">Competencia Interna · <span id="month-year-header"></span></p>
     <h1>FTD CUP</h1>
     <p class="subtitle">El Mundial de las Ventas</p>
@@ -424,7 +428,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
-        <div class="prize-amount">700 ILS</div>
+        <div class="prize-amount" style="background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s infinite linear;">700 ILS</div>
         <div class="prize-desc">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
 
@@ -461,11 +465,11 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
         <div class="prize-desc">Bono individual para quien logre 3+ FTDs en un solo día, cualquier semana</div>
       </div>
 
-      <div class="prize-card" style="background:rgba(0,0,0,.2);border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;padding:12px;">
-        <img src="ftd-cup-clean.gif" alt="FTD Cup" style="width:100%;border-radius:10px;display:block;">
+      <div class="prize-card" style="background:rgba(0,0,0,.2);border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;padding:6px;">
+        <img src="ftd-cup-clean.gif" alt="FTD Cup" style="width:100%;max-width:100%;border-radius:10px;display:block;transform:scale(1.08);transform-origin:center;">
       </div>
 
-      <div class="prize-card" style="background:linear-gradient(135deg,rgba(245,197,24,.12),rgba(13,31,20,.6));border:1.5px solid rgba(245,197,24,.3);">
+      <div class="prize-card" style="background:linear-gradient(135deg,rgba(245,197,24,.25),rgba(201,160,0,.15));border:1.5px solid rgba(245,197,24,.6);">
         <span class="prize-icon">🎊</span>
         <div class="prize-title">Celebración Final</div>
         <div class="prize-amount" style="font-size:48px;">400 ILS</div>
