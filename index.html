@@ -718,23 +718,29 @@ function applyParticipants(data) {
 function parseGvizData(json) {
   const rows = json.table.rows;
   const cols = json.table.cols;
-  let nameColIdx = -1, ftdColIdx = -1;
+
+  // Find columns by label (A=Nombre Agente, B=Total FTD)
+  let nameColIdx = 0, ftdColIdx = 1;
   cols.forEach((c, i) => {
-    const label = (c.label || '').toLowerCase();
-    if(label.includes('nombre') || label.includes('name') || label.includes('vendedor')) nameColIdx = i;
-    if(label.includes('ftd') || label.includes('total') || label.includes('venta')) ftdColIdx = i;
+    const label = (c.label || '').toLowerCase().trim();
+    if(label.includes('nombre') || label.includes('agente') || label.includes('vendedor') || label.includes('name')) nameColIdx = i;
+    if(label === 'total ftd' || label === 'totalftd' || (label.includes('total') && label.includes('ftd'))) ftdColIdx = i;
   });
-  if(nameColIdx === -1) nameColIdx = 0;
-  if(ftdColIdx === -1) ftdColIdx = 1;
+
+  const skipNames = ['nombre agente','nombre','vendedor','total','name','agente',''];
   const participants = [];
   rows.forEach(row => {
     if(!row.c) return;
     const nameCell = row.c[nameColIdx];
-    const ftdCell = row.c[ftdColIdx];
-    if(!nameCell || !nameCell.v) return;
+    const ftdCell  = row.c[ftdColIdx];
+    if(!nameCell || nameCell.v == null) return;
     const name = String(nameCell.v).trim();
-    if(!name || name.toLowerCase() === 'nombre' || name.toLowerCase() === 'vendedor' || name.toLowerCase() === 'name') return;
-    const ftd = ftdCell && ftdCell.v != null ? parseInt(ftdCell.v) || 0 : 0;
+    if(!name || skipNames.includes(name.toLowerCase())) return;
+    // ftdCell.v can be number or null
+    let ftd = 0;
+    if(ftdCell && ftdCell.v != null) {
+      ftd = typeof ftdCell.v === 'number' ? Math.round(ftdCell.v) : parseInt(String(ftdCell.v).replace(/[^0-9]/g,'')) || 0;
+    }
     participants.push({ name, totalFtd: ftd, weeklyFtds: distributeWeeklyFtds(ftd) });
   });
   return participants;
@@ -747,15 +753,16 @@ function parseCsvData(csv) {
   let nameIdx = 0, ftdIdx = 1;
   header.forEach((h, i) => {
     const lh = h.toLowerCase().replace(/"/g,'').trim();
-    if(lh.includes('nombre')||lh.includes('name')||lh.includes('vendedor')) nameIdx = i;
-    if(lh.includes('ftd')||lh.includes('total')) ftdIdx = i;
+    if(lh.includes('nombre') || lh.includes('agente') || lh.includes('vendedor') || lh.includes('name')) nameIdx = i;
+    if(lh === 'total ftd' || (lh.includes('total') && lh.includes('ftd'))) ftdIdx = i;
   });
+  const skipNames = ['nombre agente','nombre','vendedor','total','name','agente',''];
   const participants = [];
   for(let i=1; i<lines.length; i++) {
     const cols = lines[i].split(',');
     const name = (cols[nameIdx]||'').replace(/"/g,'').trim();
-    if(!name) continue;
-    const ftd = parseInt((cols[ftdIdx]||'0').replace(/"/g,'').trim()) || 0;
+    if(!name || skipNames.includes(name.toLowerCase())) continue;
+    const ftd = parseInt((cols[ftdIdx]||'0').replace(/[^0-9]/g,'')) || 0;
     participants.push({ name, totalFtd: ftd, weeklyFtds: distributeWeeklyFtds(ftd) });
   }
   return participants;
