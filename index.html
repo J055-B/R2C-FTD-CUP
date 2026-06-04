@@ -285,8 +285,9 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     <input type="text" id="login-user" placeholder="Usuario" autocomplete="username">
     <input type="password" id="login-pass" placeholder="Contraseña" autocomplete="current-password">
     <button class="btn-gold" onclick="doLogin()">Ingresar</button>
-    <button class="btn-visitor" onclick="enterAsVisitor()" style="display:flex;align-items:center;justify-content:center;gap:8px;">
-      <img src="assets/msn.gif" style="width:22px;height:22px;"> Entrar como visitante
+    <button class="btn-visitor" onclick="enterAsVisitor()" style="display:flex;align-items:center;justify-content:center;gap:8px;position:relative;">
+      <img src="assets/msn.gif" style="width:22px;height:22px;position:absolute;left:16px;"> 
+      <span>Entrar como visitante</span>
     </button>
     <p class="login-error" id="login-error">Usuario o contraseña incorrectos</p>
   </div>
