@@ -251,14 +251,7 @@ body.visitor-mode .team-name-editable{ pointer-events:none; }
   0%{background-position:-400px 0}
   100%{background-position:400px 0}
 }
-.prize-1 .prize-amount{
-  background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);
-  background-size:400px 100%;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  animation:shimmer 3s infinite linear;
-}
+/* shimmer for prize-1 applied via JS */
 
 .total-budget{
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
@@ -478,7 +471,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
-        <div class="prize-amount" data-prize-key="campeon-amount" onblur="savePrizeAmount('campeon-amount',this.textContent)" style="background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s infinite linear;outline:none;" onfocus="this.style.webkitTextFillColor='var(--gold)';this.style.backgroundImage='none';this.style.animation='none';" onblur_edit="this.style.webkitTextFillColor='transparent';this.style.backgroundImage='linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%)';this.style.animation='shimmer 3s infinite linear';">700 ILS</div>
+        <div class="prize-amount" id="campeon-amount-el" data-prize-key="campeon-amount" style="outline:none;">700 ILS</div>
         <div class="prize-desc" data-prize-key="campeon-desc" onblur="savePrizeAmount('campeon-desc',this.textContent)" style="outline:none;">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
 
@@ -1343,25 +1336,43 @@ function loadPrizeAmounts(cb) {
     if(cb) cb();
   }
 }
+function applyShimmer(el) {
+  el.style.background           = 'linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%)';
+  el.style.backgroundSize       = '400px 100%';
+  el.style.webkitBackgroundClip = 'text';
+  el.style.backgroundClip       = 'text';
+  el.style.webkitTextFillColor  = 'transparent';
+  el.style.color                = 'transparent';
+  el.style.animation            = 'shimmer 3s infinite linear';
+}
+
+function removeShimmer(el) {
+  el.style.background           = 'none';
+  el.style.webkitBackgroundClip = 'unset';
+  el.style.backgroundClip       = 'unset';
+  el.style.webkitTextFillColor  = 'var(--gold)';
+  el.style.color                = 'var(--gold)';
+  el.style.animation            = 'none';
+}
+
 function renderPrizeAmounts() {
   const isAdmin = currentAdmin !== null;
   document.querySelectorAll('[data-prize-key]').forEach(el => {
     const key = el.dataset.prizeKey;
     if(prizeAmounts[key]) el.textContent = prizeAmounts[key];
-    el.contentEditable = isAdmin ? 'true' : 'false';
-    el.style.cursor    = isAdmin ? 'text' : 'default';
+    el.contentEditable    = isAdmin ? 'true' : 'false';
+    el.style.cursor       = isAdmin ? 'text' : 'default';
     el.style.borderBottom = isAdmin ? '1px dashed rgba(245,197,24,.4)' : 'none';
   });
 
-  // 700 ILS: restore shimmer on blur after edit
-  const campeon = document.querySelector('[data-prize-key="campeon-amount"]');
+  // Campeon amount: shimmer + editable
+  const campeon = document.getElementById('campeon-amount-el');
   if(campeon) {
-    campeon.onblur = function() {
+    applyShimmer(campeon);
+    campeon.onfocus = function() { removeShimmer(this); };
+    campeon.onblur  = function() {
       savePrizeAmount('campeon-amount', this.textContent);
-      // Restore shimmer
-      this.style.webkitTextFillColor = 'transparent';
-      this.style.backgroundImage = 'linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%)';
-      this.style.animation = 'shimmer 3s infinite linear';
+      applyShimmer(this);
     };
   }
 }
