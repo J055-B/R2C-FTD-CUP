@@ -5,6 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FTD Cup – Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAJ98VsbqglzrF-8O32Iveh3fHjB5I762M",
+    authDomain: "r2c-ftd-cup.firebaseapp.com",
+    databaseURL: "https://r2c-ftd-cup-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "r2c-ftd-cup",
+    storageBucket: "r2c-ftd-cup.firebasestorage.app",
+    messagingSenderId: "551141872449",
+    appId: "1:551141872449:web:68af2ddd8cd5bbd62d47c0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Expose Firebase functions to global scope
+  window.fbSet = (path, data) => set(ref(db, path), data);
+  window.fbListen = (path, callback) => onValue(ref(db, path), snap => callback(snap.val()));
+  window.fbGet = (path) => get(ref(db, path)).then(snap => snap.val());
+  window.firebaseReady = true;
+  document.dispatchEvent(new Event('firebaseReady'));
+</script>
 <style>
 :root {
   --green: #1a7a3c;
@@ -374,6 +398,18 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       </div>
     </div>
 
+    <!-- DIAS LIDERANDO -->
+    <div class="teams-grid" style="margin-top:10px;margin-bottom:0;">
+      <div id="leader-paola" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.6;">📅 Días liderando</span>
+        <span id="days-paola" style="font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);">0</span>
+      </div>
+      <div id="leader-nicole" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.6;">📅 Días liderando</span>
+        <span id="days-nicole" style="font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);">0</span>
+      </div>
+    </div>
+
     <!-- CALENDAR -->
     <div class="divider">
       <div class="divider-line"></div>
@@ -408,28 +444,31 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     </div>
 
     <div class="scoreboard">
-      <div class="scoreboard-header">
+      <div class="scoreboard-header" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr;">
         <span>Equipo</span>
         <span>FTDs Totales</span>
         <span>Semanas ganadas</span>
+        <span>Días liderando</span>
         <span>Estado</span>
       </div>
-      <div class="score-row" id="scoreboard-paola">
+      <div class="score-row" id="scoreboard-paola" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr;">
         <div class="score-team">
           <span class="score-flag">🟢</span>
           <span class="score-name" id="sb-name-paola">Team Paola</span>
         </div>
         <span class="score-pts" id="sb-pts-paola">0</span>
         <span class="score-ftd" id="sb-weeks-paola">–</span>
+        <span class="score-ftd" id="sb-days-paola">0 días</span>
         <span id="sb-status-paola">–</span>
       </div>
-      <div class="score-row" id="scoreboard-nicole">
+      <div class="score-row" id="scoreboard-nicole" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr;">
         <div class="score-team">
           <span class="score-flag">🔴</span>
           <span class="score-name" id="sb-name-nicole">Team Nicole</span>
         </div>
         <span class="score-pts" id="sb-pts-nicole">0</span>
         <span class="score-ftd" id="sb-weeks-nicole">–</span>
+        <span class="score-ftd" id="sb-days-nicole">0 días</span>
         <span id="sb-status-nicole">–</span>
       </div>
     </div>
@@ -446,29 +485,29 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
-        <div class="prize-amount" style="background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s infinite linear;">700 ILS</div>
-        <div class="prize-desc">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
+        <div class="prize-amount" data-prize-key="campeon-amount" onblur="savePrizeAmount('campeon-amount',this.textContent)" style="background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s infinite linear;outline:none;">700 ILS</div>
+        <div class="prize-desc" data-prize-key="campeon-desc" onblur="savePrizeAmount('campeon-desc',this.textContent)" style="outline:none;">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
 
       <div class="prize-card" style="background:linear-gradient(135deg,rgba(37,168,82,.2),rgba(13,31,20,.6));border:1.5px solid rgba(37,168,82,.4);">
         <span class="prize-icon">⚽</span>
         <div class="prize-title">MVP del Mes</div>
-        <div class="prize-amount" style="font-size:48px;">400 ILS</div>
-        <div class="prize-desc">El vendedor individual con más FTDs en todo el mes, de cualquier equipo</div>
+        <div class="prize-amount" data-prize-key="mvp-amount" onblur="savePrizeAmount('mvp-amount',this.textContent)" style="font-size:48px;outline:none;">400 ILS</div>
+        <div class="prize-desc" data-prize-key="mvp-desc" onblur="savePrizeAmount('mvp-desc',this.textContent)" style="outline:none;">El vendedor individual con más FTDs en todo el mes, de cualquier equipo</div>
       </div>
 
       <div class="prize-card" style="background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(13,31,20,.6));border:1.5px solid rgba(192,57,43,.4);">
         <span class="prize-icon" style="filter:drop-shadow(0 0 8px rgba(245,197,24,.8));">⭐</span>
         <div class="prize-title">Revelación</div>
-        <div class="prize-amount" style="font-size:48px;">200 ILS</div>
-        <div class="prize-desc">Mejor vendedor Junior del mes. El que más creció vs. su promedio anterior</div>
+        <div class="prize-amount" data-prize-key="rev-amount" onblur="savePrizeAmount('rev-amount',this.textContent)" style="font-size:48px;outline:none;">200 ILS</div>
+        <div class="prize-desc" data-prize-key="rev-desc" onblur="savePrizeAmount('rev-desc',this.textContent)" style="outline:none;">Mejor vendedor Junior del mes. El que más creció vs. su promedio anterior</div>
       </div>
 
       <div class="prize-card" style="background:linear-gradient(135deg,rgba(26,122,60,.2),rgba(13,31,20,.6));border:1.5px solid rgba(37,168,82,.35);">
         <span class="prize-icon">📅</span>
         <div class="prize-title">Bonos Semanales</div>
-        <div class="prize-amount" style="font-size:48px;">600 ILS</div>
-        <div class="prize-desc">200 ILS/semana (sem 1-3) para el equipo con más FTDs esa semana. Dividido entre los 7 integrantes (~28 ILS c/u)</div>
+        <div class="prize-amount" data-prize-key="bonos-amount" onblur="savePrizeAmount('bonos-amount',this.textContent)" style="font-size:48px;outline:none;">600 ILS</div>
+        <div class="prize-desc" data-prize-key="bonos-desc" onblur="savePrizeAmount('bonos-desc',this.textContent)" style="outline:none;">200 ILS/semana (sem 1-3) para el equipo con más FTDs esa semana. Dividido entre los 7 integrantes (~28 ILS c/u)</div>
       </div>
 
     </div>
@@ -479,8 +518,8 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card" style="background:linear-gradient(135deg,rgba(192,57,43,.2),rgba(13,31,20,.6));border:1.5px solid rgba(192,57,43,.35);">
         <span class="prize-icon">🎯</span>
         <div class="prize-title">Hat-Trick</div>
-        <div class="prize-amount" style="font-size:48px;">200 ILS</div>
-        <div class="prize-desc">Bono individual para quien logre 3+ FTDs en un solo día, cualquier semana</div>
+        <div class="prize-amount" data-prize-key="hat-amount" onblur="savePrizeAmount('hat-amount',this.textContent)" style="font-size:48px;outline:none;">200 ILS</div>
+        <div class="prize-desc" data-prize-key="hat-desc" onblur="savePrizeAmount('hat-desc',this.textContent)" style="outline:none;">Bono individual para quien logre 3+ FTDs en un solo día, cualquier semana</div>
       </div>
 
       <div class="prize-card" style="background:rgba(0,0,0,.2);border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;padding:6px;">
@@ -490,8 +529,8 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card" style="background:linear-gradient(135deg,rgba(245,197,24,.25),rgba(201,160,0,.15));border:1.5px solid rgba(245,197,24,.6);">
         <span class="prize-icon">🎊</span>
         <div class="prize-title">Celebración Final</div>
-        <div class="prize-amount" style="font-size:48px;">400 ILS</div>
-        <div class="prize-desc">Evento/cena de cierre para todo el equipo al final del mes (todos participan)</div>
+        <div class="prize-amount" data-prize-key="cel-amount" onblur="savePrizeAmount('cel-amount',this.textContent)" style="font-size:48px;outline:none;">400 ILS</div>
+        <div class="prize-desc" data-prize-key="cel-desc" onblur="savePrizeAmount('cel-desc',this.textContent)" style="outline:none;">Evento/cena de cierre para todo el equipo al final del mes (todos participan)</div>
       </div>
 
     </div>
@@ -514,7 +553,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="rule-item"><span class="rule-icon">⚖️</span><div class="rule-text"><strong>División equilibrada:</strong> Cada equipo tiene la misma cantidad de seniors y juniors.</div></div>
       <div class="rule-item"><span class="rule-icon">📈</span><div class="rule-text"><strong>Métrica única:</strong> Se cuentan solo <strong>FTDs confirmados</strong>. No valen leads ni prospectos.</div></div>
       <div class="rule-item"><span class="rule-icon">🧢</span><div class="rule-text"><strong>Capitán:</strong> Cada equipo elige un capitán que reporta diariamente los FTDs al manager.</div></div>
-      <div class="rule-item"><span class="rule-icon">📅</span><div class="rule-text"><strong>Cierre semanal:</strong> Los FTDs se contabilizan cada <strong>domingo a las 23:59</strong>.</div></div>
+      <div class="rule-item"><span class="rule-icon">📅</span><div class="rule-text"><strong>Cierre semanal:</strong> Los FTDs se contabilizan cada <strong>sábado a las 23:59</strong>.</div></div>
       <div class="rule-item"><span class="rule-icon">🎯</span><div class="rule-text"><strong>Hat-Trick:</strong> Si un vendedor hace 3+ FTDs en un mismo día, gana 200 ILS adicionales.</div></div>
       <div class="rule-item"><span class="rule-icon">🏆</span><div class="rule-text"><strong>Desempate:</strong> Si los equipos terminan iguales, gana el equipo con más días liderando el marcador.</div></div>
     </div>
@@ -636,10 +675,16 @@ function enterAsVisitor() {
   document.body.classList.add('visitor-mode');
   init();
   startMusic();
+  renderLeadingDays();
 }
 
 document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 document.getElementById('login-user').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// Wait for Firebase to be ready
+document.addEventListener('firebaseReady', () => {
+  console.log('Firebase connected ✅');
+});
 
 function doLogout() {
   // Stop music
@@ -666,6 +711,8 @@ function doLogout() {
 function init() {
   loadState();
   setMonthLabels();
+  loadWeekPrizes();
+  loadPrizeAmounts();
   buildCalendar();
   fetchSheetData();
 }
@@ -683,23 +730,69 @@ function setMonthLabels() {
 function buildCalendar() {
   const weeks = getWeeksOfMonth(currentYear, currentMonth);
   const currentWeekNum = getCurrentWeekNum(weeks);
+  const today = now.getDate();
+  const isAdmin = currentAdmin !== null;
   const grid = document.getElementById('calendar-grid');
   grid.innerHTML = '';
   weeks.forEach(w => {
+    const isFinished = today > w.end;
+    const isCurrent = w.num === currentWeekNum;
+    const savedPrize = weekPrizes[w.num] || w.prize;
+
     const card = document.createElement('div');
-    card.className = 'week-card' + (w.num === currentWeekNum ? ' current-week' : '') + (selectedWeek === w.num ? ' active' : '');
+    card.className = 'week-card' + (isCurrent ? ' current-week' : '') + (selectedWeek === w.num ? ' active' : '');
+    card.style.position = 'relative';
     card.onclick = () => toggleWeekPanel(w.num, weeks);
-    card.innerHTML = `
-      ${w.num === currentWeekNum ? '<div class="current-badge">Semana actual</div>' : ''}
-      <div class="week-label">Semana</div>
-      <div class="week-num">${w.num}</div>
-      <div class="week-title">${w.title}</div>
-      <div class="week-dates">${w.start} – ${w.end} ${MONTH_NAMES_ES[currentMonth]}</div>
-      ${w.prize ? `<div class="week-prize">${w.prize}</div>` : ''}
-    `;
+
+    let prizeHtml = '';
+    if(savedPrize) {
+      if(isAdmin) {
+        prizeHtml = '<div class="week-prize" onclick="event.stopPropagation()" contenteditable="true" style="outline:none;cursor:text;border-bottom:1px dashed rgba(245,197,24,.4);" onblur="saveWeekPrize(' + w.num + ', this.textContent)">' + savedPrize + '</div>';
+      } else {
+        prizeHtml = '<div class="week-prize">' + savedPrize + '</div>';
+      }
+    }
+
+    const finishedStamp = isFinished && !isCurrent
+      ? '<img src="assets/finished.png" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);width:80%;opacity:0.85;pointer-events:none;z-index:2;">'
+      : '';
+
+    const dimStyle = (isFinished && !isCurrent) ? 'opacity:.35;' : '';
+
+    card.innerHTML =
+      (isCurrent ? '<div class="current-badge">Semana actual</div>' : '') +
+      finishedStamp +
+      '<div class="week-label" style="' + dimStyle + '">Semana</div>' +
+      '<div class="week-num" style="' + dimStyle + '">' + w.num + '</div>' +
+      '<div class="week-title" style="' + dimStyle + '">' + w.title + '</div>' +
+      '<div class="week-dates" style="' + dimStyle + '">' + w.start + ' – ' + w.end + ' ' + MONTH_NAMES_ES[currentMonth] + '</div>' +
+      prizeHtml;
+
     grid.appendChild(card);
   });
 }
+
+// Week prizes storage
+let weekPrizes = {};
+function saveWeekPrize(weekNum, value) {
+  weekPrizes[weekNum] = value.trim();
+  if(window.fbSet) window.fbSet('weekPrizes', weekPrizes);
+  try { localStorage.setItem('ftd_week_prizes', JSON.stringify(weekPrizes)); } catch(e) {}
+}
+function loadWeekPrizes() {
+  if(window.firebaseReady && window.fbListen) {
+    window.fbListen('weekPrizes', data => {
+      if(data) weekPrizes = data;
+      buildCalendar();
+    });
+  } else {
+    try {
+      const s = localStorage.getItem('ftd_week_prizes');
+      if(s) weekPrizes = JSON.parse(s);
+    } catch(e) {}
+  }
+}
+
 
 function toggleWeekPanel(weekNum, weeks) {
   if(selectedWeek === weekNum) {
@@ -824,6 +917,7 @@ function applyParticipants(data) {
   allParticipants = data;
   updateSellerDropdown();
   updateScores();
+  checkAndAwardLeadDay();
 }
 
 function parseGvizData(json) {
@@ -1086,25 +1180,167 @@ function updateScoreboardWinner() {
 // ============================================================
 // PERSISTENCE
 // ============================================================
-function saveState() {
+// Leading days state — automatic, 1 point per calendar day to the leader
+let leadingDays = { paola: 0, nicole: 0 };
+
+function checkAndAwardLeadDay() {
+  // Get today's date string YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
+
+  // Load already-awarded days log
+  let awardsLog = {};
   try {
-    localStorage.setItem('ftd_cup_teams', JSON.stringify(teams));
+    const saved = localStorage.getItem('ftd_cup_awards_log');
+    if(saved) awardsLog = JSON.parse(saved);
   } catch(e) {}
+
+  // If today already awarded, skip
+  if(awardsLog[today]) return;
+
+  // Compare FTD totals
+  let ftdPaola = 0, ftdNicole = 0;
+  teams.paola.players.forEach(p => {
+    const participant = allParticipants.find(x => x.name.toLowerCase() === p.name.toLowerCase());
+    if(participant) ftdPaola += participant.totalFtd;
+  });
+  teams.nicole.players.forEach(p => {
+    const participant = allParticipants.find(x => x.name.toLowerCase() === p.name.toLowerCase());
+    if(participant) ftdNicole += participant.totalFtd;
+  });
+
+  // Only award if at least one team has FTDs and there's a clear leader
+  if(ftdPaola === 0 && ftdNicole === 0) return;
+  if(ftdPaola === ftdNicole) return; // tie = no award
+
+  // Award +1 to the leader
+  if(ftdPaola > ftdNicole) {
+    leadingDays.paola++;
+  } else {
+    leadingDays.nicole++;
+  }
+
+  // Mark today as awarded
+  awardsLog[today] = ftdPaola > ftdNicole ? 'paola' : 'nicole';
+  try { localStorage.setItem('ftd_cup_awards_log', JSON.stringify(awardsLog)); } catch(e) {}
+
+  saveLeadingDays();
+  renderLeadingDays();
+}
+
+function renderLeadingDays() {
+  // Under-team counters
+  const dp = document.getElementById('days-paola');
+  const dn = document.getElementById('days-nicole');
+  if(dp) dp.textContent = leadingDays.paola;
+  if(dn) dn.textContent = leadingDays.nicole;
+  // Scoreboard columns
+  const sbdp = document.getElementById('sb-days-paola');
+  const sbdn = document.getElementById('sb-days-nicole');
+  if(sbdp) sbdp.textContent = leadingDays.paola + ' días';
+  if(sbdn) sbdn.textContent = leadingDays.nicole + ' días';
+  // Highlight leader boxes
+  const lp = document.getElementById('leader-paola');
+  const ln = document.getElementById('leader-nicole');
+  if(lp) lp.style.borderColor = leadingDays.paola > leadingDays.nicole ? 'rgba(37,168,82,.6)' : 'rgba(255,255,255,.08)';
+  if(ln) ln.style.borderColor = leadingDays.nicole > leadingDays.paola ? 'rgba(192,57,43,.6)' : 'rgba(255,255,255,.08)';
+}
+
+function saveLeadingDays() {
+  if(window.fbSet) {
+    window.fbSet('leadingDays', leadingDays).catch(e => console.error('FB days error:', e));
+  }
+  try { localStorage.setItem('ftd_cup_days', JSON.stringify(leadingDays)); } catch(e) {}
+}
+
+function loadLeadingDays() {
+  if(window.firebaseReady) {
+    window.fbListen('leadingDays', (data) => {
+      if(data) {
+        leadingDays = data;
+        renderLeadingDays();
+      }
+    });
+  } else {
+    try {
+      const saved = localStorage.getItem('ftd_cup_days');
+      if(saved) leadingDays = JSON.parse(saved);
+    } catch(e) {}
+    renderLeadingDays();
+  }
+}
+
+
+// Prize amounts storage
+let prizeAmounts = {};
+function savePrizeAmount(key, value) {
+  prizeAmounts[key] = value.trim();
+  if(window.fbSet) window.fbSet('prizeAmounts', prizeAmounts);
+  try { localStorage.setItem('ftd_prize_amounts', JSON.stringify(prizeAmounts)); } catch(e) {}
+}
+function loadPrizeAmounts(cb) {
+  if(window.firebaseReady && window.fbListen) {
+    window.fbListen('prizeAmounts', data => {
+      if(data) prizeAmounts = data;
+      renderPrizeAmounts();
+      if(cb) cb();
+    });
+  } else {
+    try {
+      const s = localStorage.getItem('ftd_prize_amounts');
+      if(s) prizeAmounts = JSON.parse(s);
+    } catch(e) {}
+    renderPrizeAmounts();
+    if(cb) cb();
+  }
+}
+function renderPrizeAmounts() {
+  const isAdmin = currentAdmin !== null;
+  document.querySelectorAll('[data-prize-key]').forEach(el => {
+    const key = el.dataset.prizeKey;
+    if(prizeAmounts[key]) el.textContent = prizeAmounts[key];
+    el.contentEditable = isAdmin ? 'true' : 'false';
+    el.style.cursor = isAdmin ? 'text' : 'default';
+    el.style.borderBottom = isAdmin ? '1px dashed rgba(245,197,24,.4)' : 'none';
+  });
+}
+
+function saveState() {
+  // Save to Firebase
+  if(window.fbSet) {
+    window.fbSet('teams', teams).catch(e => console.error('FB save error:', e));
+  }
+  // Also keep localStorage as backup
+  try { localStorage.setItem('ftd_cup_teams', JSON.stringify(teams)); } catch(e) {}
 }
 
 function loadState() {
-  try {
-    const saved = localStorage.getItem('ftd_cup_teams');
-    if(saved) {
-      const parsed = JSON.parse(saved);
-      if(parsed.paola) teams.paola = parsed.paola;
-      if(parsed.nicole) teams.nicole = parsed.nicole;
-      // Restore team name inputs
-      document.getElementById('team-paola-name').value = teams.paola.name || 'Team Paola';
-      document.getElementById('team-nicole-name').value = teams.nicole.name || 'Team Nicole';
-    }
-  } catch(e) {}
-  renderPlayers();
+  if(window.firebaseReady) {
+    // Listen to Firebase in real time
+    window.fbListen('teams', (data) => {
+      if(data) {
+        if(data.paola) teams.paola = data.paola;
+        if(data.nicole) teams.nicole = data.nicole;
+        document.getElementById('team-paola-name').value = teams.paola.name || 'Team Paola';
+        document.getElementById('team-nicole-name').value = teams.nicole.name || 'Team Nicole';
+        renderPlayers();
+        updateScores();
+      }
+    });
+  } else {
+    // Fallback to localStorage while Firebase loads
+    try {
+      const saved = localStorage.getItem('ftd_cup_teams');
+      if(saved) {
+        const parsed = JSON.parse(saved);
+        if(parsed.paola) teams.paola = parsed.paola;
+        if(parsed.nicole) teams.nicole = parsed.nicole;
+        document.getElementById('team-paola-name').value = teams.paola.name || 'Team Paola';
+        document.getElementById('team-nicole-name').value = teams.nicole.name || 'Team Nicole';
+      }
+    } catch(e) {}
+    renderPlayers();
+  }
+  loadLeadingDays();
 }
 
 
