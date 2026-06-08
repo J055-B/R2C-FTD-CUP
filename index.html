@@ -93,7 +93,7 @@ header{text-align:center;padding:40px 20px 20px;position:relative;}
 .trophy-icon{font-size:56px;display:block;animation:bounce 2s infinite;}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
-h1{font-family:'Bebas Neue',cursive;font-size:clamp(42px,8vw,80px);letter-spacing:4px;color:var(--gold);text-shadow:0 0 40px rgba(245,197,24,.7),0 0 80px rgba(245,197,24,.3);line-height:1;margin:8px 0;animation:goldPulse 3s ease-in-out infinite;}
+h1{font-family:'Bebas Neue',cursive;font-size:clamp(42px,8vw,80px);letter-spacing:4px;background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin:8px 0;animation:shimmer 3s infinite linear;}
 @keyframes goldPulse{0%,100%{text-shadow:0 0 40px rgba(245,197,24,.7),0 0 80px rgba(245,197,24,.3);}50%{text-shadow:0 0 70px rgba(245,197,24,1),0 0 140px rgba(245,197,24,.5);}}
 .subtitle{font-size:14px;letter-spacing:6px;text-transform:uppercase;color:var(--green-light);margin-bottom:6px;}
 .budget-pill{display:inline-block;background:rgba(245,197,24,.15);border:1px solid var(--gold);
@@ -354,7 +354,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     <p class="subtitle">Competencia Interna · <span id="month-year-header"></span></p>
     <h1>FTD CUP</h1>
     <p class="subtitle">El Mundial de las Ventas</p>
-    <span class="budget-pill" id="budget-pill-text" onclick="editBudgetPill()" title="Click para editar">⚽ Presupuesto Total: 2,500 ILS</span>
+    <span class="budget-pill" id="budget-pill-text" data-prize-key="budget-pill" onblur="savePrizeAmount('budget-pill',this.textContent)" style="outline:none;">⚽ Presupuesto Total: 2,500 ILS</span>
   </header>
 
   <div class="container">
@@ -478,7 +478,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
-        <div class="prize-amount" data-prize-key="campeon-amount" onblur="savePrizeAmount('campeon-amount',this.textContent)" style="color:var(--gold);text-shadow:0 0 30px rgba(245,197,24,.6);animation:goldPulse 3s ease-in-out infinite;outline:none;">700 ILS</div>
+        <div class="prize-amount" data-prize-key="campeon-amount" onblur="savePrizeAmount('campeon-amount',this.textContent)" style="background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s infinite linear;outline:none;" onfocus="this.style.webkitTextFillColor='var(--gold)';this.style.backgroundImage='none';this.style.animation='none';" onblur_edit="this.style.webkitTextFillColor='transparent';this.style.backgroundImage='linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%)';this.style.animation='shimmer 3s infinite linear';">700 ILS</div>
         <div class="prize-desc" data-prize-key="campeon-desc" onblur="savePrizeAmount('campeon-desc',this.textContent)" style="outline:none;">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
 
@@ -1349,9 +1349,21 @@ function renderPrizeAmounts() {
     const key = el.dataset.prizeKey;
     if(prizeAmounts[key]) el.textContent = prizeAmounts[key];
     el.contentEditable = isAdmin ? 'true' : 'false';
-    el.style.cursor = isAdmin ? 'text' : 'default';
+    el.style.cursor    = isAdmin ? 'text' : 'default';
     el.style.borderBottom = isAdmin ? '1px dashed rgba(245,197,24,.4)' : 'none';
   });
+
+  // 700 ILS: restore shimmer on blur after edit
+  const campeon = document.querySelector('[data-prize-key="campeon-amount"]');
+  if(campeon) {
+    campeon.onblur = function() {
+      savePrizeAmount('campeon-amount', this.textContent);
+      // Restore shimmer
+      this.style.webkitTextFillColor = 'transparent';
+      this.style.backgroundImage = 'linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%)';
+      this.style.animation = 'shimmer 3s infinite linear';
+    };
+  }
 }
 
 function saveState() {
