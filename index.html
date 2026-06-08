@@ -245,7 +245,7 @@ body.visitor-mode .team-name-editable{ pointer-events:none; }
 }
 .prize-1 .prize-icon{font-size:64px;animation:bounce 2s infinite;}
 .prize-1 .prize-title{font-size:26px;letter-spacing:4px;color:rgba(255,255,255,.85);}
-.prize-1 .prize-amount{font-size:72px;}
+.prize-1 .prize-amount{font-size:72px;color:var(--gold);text-shadow:0 0 20px rgba(245,197,24,.9),0 0 40px rgba(245,197,24,.6);}
 .prize-1 .prize-desc{font-size:14px;opacity:.65;}
 @keyframes shimmer{
   0%{background-position:-400px 0}
@@ -471,7 +471,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
-        <div class="prize-amount" id="campeon-amount-el" data-prize-key="campeon-amount" style="color:var(--gold);text-shadow:0 0 20px rgba(245,197,24,.9),0 0 40px rgba(245,197,24,.6),0 0 60px rgba(245,197,24,.3);outline:none;">700 ILS</div>
+        <div class="prize-amount" id="campeon-amount-el" data-prize-key="campeon-amount" style="outline:none;">700 ILS</div>
         <div class="prize-desc" data-prize-key="campeon-desc" onblur="savePrizeAmount('campeon-desc',this.textContent)" style="outline:none;">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
 
@@ -1340,7 +1340,6 @@ function renderPrizeAmounts() {
   const isAdmin = currentAdmin !== null;
   document.querySelectorAll('[data-prize-key]').forEach(el => {
     const key = el.dataset.prizeKey;
-    // Use innerHTML for rule-text (has nested tags), textContent for the rest
     if(prizeAmounts[key]) {
       if(key.startsWith('rule-')) el.innerHTML = prizeAmounts[key];
       else el.textContent = prizeAmounts[key];
@@ -1348,6 +1347,11 @@ function renderPrizeAmounts() {
     el.contentEditable    = isAdmin ? 'true' : 'false';
     el.style.cursor       = isAdmin ? 'text' : 'default';
     el.style.borderBottom = isAdmin ? '1px dashed rgba(245,197,24,.4)' : 'none';
+    // Make sure text is always visible — never transparent
+    el.style.webkitTextFillColor = '';
+    el.style.color = '';
+    el.style.backgroundImage = '';
+    el.style.animation = '';
   });
 }
 
