@@ -847,24 +847,14 @@ function getWeeklyFtd(playerName, weekNum) {
 }
 
 // ============================================================
-// GOOGLE SHEETS FETCH — JSONP + fallbacks
+// GOOGLE SHEETS FETCH
 // ============================================================
 async function fetchSheetData() {
   showStatus('⏳ Cargando datos del reporte...', false);
 
-  // Method 1: JSONP (avoids CORS, works with "anyone with link")
+  // Method 1: fetch() gviz JSON
   try {
-    const data = await fetchGvizJsonp();
-    if(data && data.length > 0) {
-      applyParticipants(data);
-      showStatus('✅ Datos actualizados correctamente', true);
-      return;
-    }
-  } catch(e) { console.warn('JSONP failed:', e.message); }
-
-  // Method 2: fetch() gviz (works if same-origin or permissive CORS)
-  try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID_SUMMARY}&headers=1`;
+    const url  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID_SUMMARY}&headers=1`;
     const resp = await fetch(url);
     if(resp.ok) {
       const text = await resp.text();
@@ -878,10 +868,10 @@ async function fetchSheetData() {
     }
   } catch(e) { console.warn('fetch gviz failed:', e.message); }
 
-  // Method 3: CSV export
+  // Method 2: CSV export
   try {
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_SUMMARY}`;
-    const resp = await fetch(csvUrl);
+    const resp   = await fetch(csvUrl);
     if(resp.ok) {
       const text = await resp.text();
       const data = parseCsvData(text);
@@ -894,25 +884,6 @@ async function fetchSheetData() {
   } catch(e) { console.warn('CSV failed:', e.message); }
 
   showStatus('⚠️ No se pudo leer la hoja automáticamente. Usá el botón "Cargar CSV manualmente" abajo.', false);
-}
-
-function fetchGvizJsonp() {
-  return new Promise((resolve, reject) => {
-    const cbName = 'ftdcup_cb_' + Date.now();
-    const script = document.createElement('script');
-    const timer = setTimeout(() => {
-      delete window[cbName]; script.remove();
-      reject(new Error('timeout'));
-    }, 10000);
-    window[cbName] = function(json) {
-      clearTimeout(timer); delete window[cbName]; script.remove();
-      try { resolve(parseGvizData(json)); } catch(e) { reject(e); }
-    };
-    // tqx=out:json alone triggers google.visualization — must use callback param
-    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=&gid=${GID_SUMMARY}&headers=1&callback=${cbName}`;
-    script.onerror = () => { clearTimeout(timer); delete window[cbName]; script.remove(); reject(new Error('script load error')); };
-    document.head.appendChild(script);
-  });
 }
 
 function applyParticipants(data) {
