@@ -909,7 +909,7 @@ function fetchGvizJsonp() {
       try { resolve(parseGvizData(json)); } catch(e) { reject(e); }
     };
     // tqx=out:json alone triggers google.visualization — must use callback param
-    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;callback:${cbName}&gid=${GID_SUMMARY}&headers=1`;
+    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=&gid=${GID_SUMMARY}&headers=1&callback=${cbName}`;
     script.onerror = () => { clearTimeout(timer); delete window[cbName]; script.remove(); reject(new Error('script load error')); };
     document.head.appendChild(script);
   });
@@ -1323,13 +1323,20 @@ function saveState() {
   try { localStorage.setItem('ftd_cup_teams', JSON.stringify(teams)); } catch(e) {}
 }
 
+// Firebase stores arrays as objects {0:{...}, 1:{...}} — convert back to array
+function toArray(val) {
+  if(!val) return [];
+  if(Array.isArray(val)) return val;
+  return Object.values(val);
+}
+
 function loadState() {
   const subscribeTeams = () => {
     window.fbListen('teams', (data) => {
       if(data) {
-        if(data.paola) teams.paola = data.paola;
-        if(data.nicole) teams.nicole = data.nicole;
-        document.getElementById('team-paola-name').value = teams.paola.name || 'Team Paola';
+        if(data.paola)  { teams.paola  = data.paola;  teams.paola.players  = toArray(data.paola.players);  }
+        if(data.nicole) { teams.nicole = data.nicole; teams.nicole.players = toArray(data.nicole.players); }
+        document.getElementById('team-paola-name').value  = teams.paola.name  || 'Team Paola';
         document.getElementById('team-nicole-name').value = teams.nicole.name || 'Team Nicole';
         renderPlayers();
         updateScores();
