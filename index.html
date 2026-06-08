@@ -471,10 +471,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
-        <input type="text" id="campeon-amount-el" data-prize-key="campeon-amount"
-          value="700 ILS"
-          onchange="savePrizeAmount('campeon-amount',this.value)"
-          style="font-family:'Bebas Neue',cursive;font-size:72px;color:var(--gold);text-shadow:0 0 20px rgba(245,197,24,.9),0 0 40px rgba(245,197,24,.5);background:none;border:none;outline:none;text-align:center;width:100%;cursor:pointer;padding:0;line-height:1;">
+        <div class="prize-amount" data-prize-key="campeon-amount" onblur="savePrizeAmount('campeon-amount',this.textContent)" style="font-size:72px;outline:none;">700 ILS</div>
         <div class="prize-desc" data-prize-key="campeon-desc" onblur="savePrizeAmount('campeon-desc',this.textContent)" style="outline:none;">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
 
