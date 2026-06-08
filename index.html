@@ -93,9 +93,8 @@ header{text-align:center;padding:40px 20px 20px;position:relative;}
 .trophy-icon{font-size:56px;display:block;animation:bounce 2s infinite;}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
-h1{font-family:'Bebas Neue',cursive;font-size:clamp(42px,8vw,80px);letter-spacing:4px;
-  background:linear-gradient(135deg,var(--gold),#fff 50%,var(--gold));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin:8px 0;}
+h1{font-family:'Bebas Neue',cursive;font-size:clamp(42px,8vw,80px);letter-spacing:4px;color:var(--gold);text-shadow:0 0 40px rgba(245,197,24,.7),0 0 80px rgba(245,197,24,.3);line-height:1;margin:8px 0;animation:goldPulse 3s ease-in-out infinite;}
+@keyframes goldPulse{0%,100%{text-shadow:0 0 40px rgba(245,197,24,.7),0 0 80px rgba(245,197,24,.3);}50%{text-shadow:0 0 70px rgba(245,197,24,1),0 0 140px rgba(245,197,24,.5);}}
 .subtitle{font-size:14px;letter-spacing:6px;text-transform:uppercase;color:var(--green-light);margin-bottom:6px;}
 .budget-pill{display:inline-block;background:rgba(245,197,24,.15);border:1px solid var(--gold);
   color:var(--gold);padding:4px 18px;border-radius:20px;font-size:13px;font-weight:600;letter-spacing:1px;margin-top:8px;}
@@ -355,7 +354,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
     <p class="subtitle">Competencia Interna · <span id="month-year-header"></span></p>
     <h1>FTD CUP</h1>
     <p class="subtitle">El Mundial de las Ventas</p>
-    <span class="budget-pill">⚽ Presupuesto Total: 2,500 ILS</span>
+    <span class="budget-pill" id="budget-pill-text" onclick="editBudgetPill()" title="Click para editar">⚽ Presupuesto Total: 2,500 ILS</span>
   </header>
 
   <div class="container">
@@ -399,17 +398,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       </div>
     </div>
 
-    <!-- DIAS LIDERANDO -->
-    <div class="teams-grid" style="margin-top:10px;margin-bottom:0;">
-      <div id="leader-paola" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.6;">📅 Días liderando</span>
-        <span id="days-paola" style="font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);">0</span>
-      </div>
-      <div id="leader-nicole" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.6;">📅 Días liderando</span>
-        <span id="days-nicole" style="font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);">0</span>
-      </div>
-    </div>
+
 
     <!-- CALENDAR -->
     <div class="divider">
@@ -423,7 +412,10 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
 
     <!-- WEEKLY STANDINGS PANEL -->
     <div class="week-panel" id="week-panel">
-      <h3 id="week-panel-title">Semana 1 – Posiciones</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+        <h3 id="week-panel-title" style="margin:0;">Semana 1 – Posiciones</h3>
+        <div id="week-mini-scoreboard" style="display:flex;gap:10px;align-items:center;"></div>
+      </div>
       <table class="standings-table">
         <thead>
           <tr>
@@ -486,7 +478,7 @@ footer{text-align:center;padding:20px;font-size:12px;opacity:.3;letter-spacing:2
       <div class="prize-card prize-1">
         <span class="prize-icon">🏆</span>
         <div class="prize-title">Equipo Campeón</div>
-        <div class="prize-amount" data-prize-key="campeon-amount" onblur="savePrizeAmount('campeon-amount',this.textContent)" style="background:linear-gradient(90deg,var(--gold) 25%,#fff 50%,var(--gold) 75%);background-size:400px 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s infinite linear;outline:none;">700 ILS</div>
+        <div class="prize-amount" data-prize-key="campeon-amount" onblur="savePrizeAmount('campeon-amount',this.textContent)" style="color:var(--gold);text-shadow:0 0 30px rgba(245,197,24,.6);animation:goldPulse 3s ease-in-out infinite;outline:none;">700 ILS</div>
         <div class="prize-desc" data-prize-key="campeon-desc" onblur="savePrizeAmount('campeon-desc',this.textContent)" style="outline:none;">100 ILS por integrante del equipo ganador del mes (mayor FTDs acumulados)</div>
       </div>
 
@@ -786,10 +778,16 @@ function loadWeekPrizes() {
       if(data) weekPrizes = data;
       buildCalendar();
     });
+    window.fbListen('weekScores', data => {
+      if(data) weekScores = data;
+      updateScoreboardWinner();
+    });
   } else {
     try {
       const s = localStorage.getItem('ftd_week_prizes');
       if(s) weekPrizes = JSON.parse(s);
+      const ws = localStorage.getItem('ftd_week_scores');
+      if(ws) weekScores = JSON.parse(ws);
     } catch(e) {}
   }
 }
@@ -811,16 +809,64 @@ function showWeekPanel(weekNum, weeks) {
   const w = weeks.find(x => x.num === weekNum);
   document.getElementById('week-panel-title').textContent = `Semana ${weekNum} – ${w.title} (${w.start}–${w.end} ${MONTH_NAMES_ES[currentMonth]})`;
 
-  // Gather all players from both teams with their weekly FTDs
+  // Build player list with team identity (A=verde, B=rojo)
   const allPlayers = [];
-  ['paola','nicole'].forEach(team => {
-    teams[team].players.forEach(p => {
+  let ftdA = 0, ftdB = 0;
+  ['paola','nicole'].forEach(teamKey => {
+    const teamName  = teams[teamKey].name;
+    const teamColor = teamKey === 'paola' ? 'var(--green-light)' : 'var(--red)';
+    if(!teams[teamKey].players) return;
+    teams[teamKey].players.forEach(p => {
       const ftd = getWeeklyFtd(p.name, weekNum);
-      allPlayers.push({ name: p.name, team: teams[team].name, role: p.role, ftd });
+      if(teamKey === 'paola') ftdA += ftd; else ftdB += ftd;
+      allPlayers.push({ name: p.name, teamName, teamColor, role: p.role, ftd, teamKey });
     });
   });
   allPlayers.sort((a,b) => b.ftd - a.ftd);
 
+  // Mini scoreboard
+  const savedWinner = weekScores[weekNum] || null;
+  const autoWinner  = ftdA > ftdB ? 'paola' : ftdB > ftdA ? 'nicole' : null;
+  const winner      = savedWinner || autoWinner;
+  const nameA = teams.paola.name;
+  const nameB = teams.nicole.name;
+
+  const sb = document.getElementById('week-mini-scoreboard');
+  const adminControls = currentAdmin ? `
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+      <button onclick="setWeekScore(${weekNum},'paola')" style="background:rgba(37,168,82,.2);border:1px solid var(--green-light);color:var(--green-light);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">🟢 ${nameA}</button>
+      <button onclick="setWeekScore(${weekNum},'nicole')" style="background:rgba(192,57,43,.2);border:1px solid var(--red);color:var(--red);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">🔴 ${nameB}</button>
+      <button onclick="setWeekScore(${weekNum},null)" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;">✕ Auto</button>
+    </div>` : '';
+
+  if(winner) {
+    const wName  = winner === 'paola' ? nameA : nameB;
+    const wColor = winner === 'paola' ? 'var(--green-light)' : 'var(--red)';
+    const wIcon  = winner === 'paola' ? '🟢' : '🔴';
+    sb.innerHTML = `
+      <div style="background:rgba(255,255,255,.05);border:1px solid ${wColor};border-radius:10px;padding:10px 16px;text-align:center;">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin-bottom:4px;">Ganador Semana ${weekNum}</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:22px;color:${wColor};">${wIcon} ${wName}</div>
+        <div style="display:flex;gap:16px;justify-content:center;margin-top:6px;">
+          <span style="font-size:13px;color:var(--green-light);">${nameA}: <b>${ftdA}</b></span>
+          <span style="font-size:13px;color:var(--red);">${nameB}: <b>${ftdB}</b></span>
+        </div>
+        ${adminControls}
+      </div>`;
+  } else {
+    sb.innerHTML = `
+      <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 16px;text-align:center;">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin-bottom:4px;">Marcador</div>
+        <div style="display:flex;gap:16px;justify-content:center;">
+          <span style="font-size:16px;color:var(--green-light);font-weight:700;">${nameA}: ${ftdA}</span>
+          <span style="opacity:.4;">vs</span>
+          <span style="font-size:16px;color:var(--red);font-weight:700;">${nameB}: ${ftdB}</span>
+        </div>
+        ${adminControls}
+      </div>`;
+  }
+
+  // Player rows
   const tbody = document.getElementById('week-standings-body');
   tbody.innerHTML = '';
   if(allPlayers.length === 0) {
@@ -831,13 +877,30 @@ function showWeekPanel(weekNum, weeks) {
       tr.innerHTML = `
         <td class="${i===0?'rank-1':''}" style="font-weight:700;">${i+1}</td>
         <td style="font-weight:600;">${p.name} <span style="font-size:10px;opacity:.5;">(${p.role})</span></td>
-        <td style="opacity:.7;">${p.team}</td>
+        <td style="font-weight:700;color:${p.teamColor};">${p.teamName}</td>
         <td style="color:var(--gold);font-weight:700;">${p.ftd}</td>
       `;
       tbody.appendChild(tr);
     });
   }
   document.getElementById('week-panel').classList.add('open');
+}
+
+// weekScores: manual overrides { 1: 'paola'|'nicole'|null, ... }
+let weekScores = {};
+function setWeekScore(weekNum, winner) {
+  if(!currentAdmin) return;
+  if(winner === null) {
+    delete weekScores[weekNum];
+  } else {
+    weekScores[weekNum] = winner;
+  }
+  if(window.fbSet) window.fbSet('weekScores', weekScores);
+  try { localStorage.setItem('ftd_week_scores', JSON.stringify(weekScores)); } catch(e) {}
+  // Re-render panel and scoreboard
+  const weeks = getWeeksOfMonth(currentYear, currentMonth);
+  showWeekPanel(weekNum, weeks);
+  updateScoreboardWinner();
 }
 
 function getWeeklyFtd(playerName, weekNum) {
@@ -1112,40 +1175,46 @@ function updateScoreboardNames() {
 }
 
 function updateScoreboardWinner() {
-  const ptsPaola = parseInt(document.getElementById('sb-pts-paola').textContent) || 0;
+  const ptsPaola  = parseInt(document.getElementById('sb-pts-paola').textContent)  || 0;
   const ptsNicole = parseInt(document.getElementById('sb-pts-nicole').textContent) || 0;
 
-  // Weekly wins count
-  const weeks = getWeeksOfMonth(currentYear, currentMonth);
+  // Weekly wins — use manual weekScores if set, otherwise auto from FTDs
+  const weeks          = getWeeksOfMonth(currentYear, currentMonth);
   const currentWeekNum = getCurrentWeekNum(weeks) || 1;
   let winsPaola = 0, winsNicole = 0;
   for(let wn = 1; wn <= currentWeekNum; wn++) {
-    let wfPaola = 0, wfNicole = 0;
-    teams.paola.players.forEach(p => { wfPaola += getWeeklyFtd(p.name, wn); });
-    teams.nicole.players.forEach(p => { wfNicole += getWeeklyFtd(p.name, wn); });
-    if(wfPaola > wfNicole) winsPaola++;
-    else if(wfNicole > wfPaola) winsNicole++;
+    const manual = weekScores[wn];
+    if(manual) {
+      if(manual === 'paola')  winsPaola++;
+      else if(manual === 'nicole') winsNicole++;
+    } else {
+      let wfPaola = 0, wfNicole = 0;
+      if(teams.paola.players)  teams.paola.players.forEach(p  => { wfPaola  += getWeeklyFtd(p.name, wn); });
+      if(teams.nicole.players) teams.nicole.players.forEach(p => { wfNicole += getWeeklyFtd(p.name, wn); });
+      if(wfPaola > wfNicole) winsPaola++;
+      else if(wfNicole > wfPaola) winsNicole++;
+    }
   }
-  document.getElementById('sb-weeks-paola').textContent = `${winsPaola} sem.`;
+  document.getElementById('sb-weeks-paola').textContent  = `${winsPaola} sem.`;
   document.getElementById('sb-weeks-nicole').textContent = `${winsNicole} sem.`;
 
-  const rowPaola = document.getElementById('scoreboard-paola');
+  const rowPaola  = document.getElementById('scoreboard-paola');
   const rowNicole = document.getElementById('scoreboard-nicole');
   rowPaola.classList.remove('winner-row');
   rowNicole.classList.remove('winner-row');
-  document.getElementById('sb-status-paola').textContent = '–';
+  document.getElementById('sb-status-paola').textContent  = '–';
   document.getElementById('sb-status-nicole').textContent = '–';
 
   if(ptsPaola > ptsNicole) {
     rowPaola.classList.add('winner-row');
-    document.getElementById('sb-status-paola').textContent = '🥇 Líder';
+    document.getElementById('sb-status-paola').textContent  = '🥇 Líder';
     document.getElementById('sb-status-nicole').textContent = '💪 Persiguiendo';
   } else if(ptsNicole > ptsPaola) {
     rowNicole.classList.add('winner-row');
     document.getElementById('sb-status-nicole').textContent = '🥇 Líder';
-    document.getElementById('sb-status-paola').textContent = '💪 Persiguiendo';
+    document.getElementById('sb-status-paola').textContent  = '💪 Persiguiendo';
   } else if(ptsPaola > 0) {
-    document.getElementById('sb-status-paola').textContent = '🤝 Empate';
+    document.getElementById('sb-status-paola').textContent  = '🤝 Empate';
     document.getElementById('sb-status-nicole').textContent = '🤝 Empate';
   }
 }
