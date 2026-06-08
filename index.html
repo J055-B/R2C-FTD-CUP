@@ -27,6 +27,7 @@
   window.fbListen = (path, callback) => onValue(ref(db, path), snap => callback(snap.val()));
   window.fbGet = (path) => get(ref(db, path)).then(snap => snap.val());
   window.firebaseReady = true;
+  if (window._fbReadyResolve) window._fbReadyResolve();
   document.dispatchEvent(new Event('firebaseReady'));
 </script>
 <style>
@@ -1003,9 +1004,7 @@ function showStatus(msg, success) {
 
 function updateSellerDropdown() {
   const sel = document.getElementById('modal-seller-select');
-  const currentVal = sel.value;
-  const currentTeam = sel.dataset.team;
-  const usedNames = getUsedNames(currentTeam);
+  const usedNames = getUsedNames();
   sel.innerHTML = '<option value="">— Seleccionar participante —</option>';
   allParticipants.forEach(p => {
     if(!usedNames.includes(p.name)) {
@@ -1017,7 +1016,7 @@ function updateSellerDropdown() {
   });
 }
 
-function getUsedNames(excludeTeam) {
+function getUsedNames() {
   const used = [];
   ['paola','nicole'].forEach(t => {
     teams[t].players.forEach(p => used.push(p.name));
@@ -1058,6 +1057,7 @@ function confirmAddPlayer() {
 }
 
 function removePlayer(team, name) {
+  if(!currentAdmin) return;
   teams[team].players = teams[team].players.filter(p => p.name !== name);
   saveState();
   renderPlayers();
@@ -1184,17 +1184,14 @@ function updateScoreboardWinner() {
 let leadingDays = { paola: 0, nicole: 0 };
 
 function checkAndAwardLeadDay() {
-  // Get today's date string YYYY-MM-DD
   const today = new Date().toISOString().split('T')[0];
 
-  // Load already-awarded days log
-  let awardsLog = {};
-  try {
-    const saved = localStorage.getItem('ftd_cup_awards_log');
-    if(saved) awardsLog = JSON.parse(saved);
-  } catch(e) {}
+  // Use Firebase-synced awardsLog if available, fallback to localStorage
+  const awardsLog = window._fbAwardsLog || (() => {
+    try { return JSON.parse(localStorage.getItem('ftd_cup_awards_log') || '{}'); } catch(e) { return {}; }
+  })();
 
-  // If today already awarded, skip
+  // If today already awarded on ANY device, skip
   if(awardsLog[today]) return;
 
   // Compare FTD totals
@@ -1219,8 +1216,9 @@ function checkAndAwardLeadDay() {
     leadingDays.nicole++;
   }
 
-  // Mark today as awarded
+  // Mark today as awarded — save to Firebase AND localStorage
   awardsLog[today] = ftdPaola > ftdNicole ? 'paola' : 'nicole';
+  if(window.fbSet) window.fbSet('awardsLog', awardsLog).catch(e => console.error('FB awardsLog error:', e));
   try { localStorage.setItem('ftd_cup_awards_log', JSON.stringify(awardsLog)); } catch(e) {}
 
   saveLeadingDays();
@@ -1253,19 +1251,29 @@ function saveLeadingDays() {
 }
 
 function loadLeadingDays() {
+  // Always subscribe via Firebase — onFirebaseReady ensures we wait if needed
   if(window.firebaseReady) {
     window.fbListen('leadingDays', (data) => {
-      if(data) {
-        leadingDays = data;
-        renderLeadingDays();
-      }
+      if(data) { leadingDays = data; renderLeadingDays(); }
+    });
+    window.fbListen('awardsLog', (data) => {
+      window._fbAwardsLog = data || {};
     });
   } else {
+    // Firebase not ready yet — subscribe once it is, and load localStorage in the meantime
     try {
       const saved = localStorage.getItem('ftd_cup_days');
       if(saved) leadingDays = JSON.parse(saved);
     } catch(e) {}
     renderLeadingDays();
+    document.addEventListener('firebaseReady', () => {
+      window.fbListen('leadingDays', (data) => {
+        if(data) { leadingDays = data; renderLeadingDays(); }
+      });
+      window.fbListen('awardsLog', (data) => {
+        window._fbAwardsLog = data || {};
+      });
+    }, { once: true });
   }
 }
 
@@ -1314,8 +1322,7 @@ function saveState() {
 }
 
 function loadState() {
-  if(window.firebaseReady) {
-    // Listen to Firebase in real time
+  const subscribeTeams = () => {
     window.fbListen('teams', (data) => {
       if(data) {
         if(data.paola) teams.paola = data.paola;
@@ -1326,8 +1333,12 @@ function loadState() {
         updateScores();
       }
     });
+  };
+
+  if(window.firebaseReady) {
+    subscribeTeams();
   } else {
-    // Fallback to localStorage while Firebase loads
+    // Load localStorage as immediate fallback, then subscribe once Firebase is ready
     try {
       const saved = localStorage.getItem('ftd_cup_teams');
       if(saved) {
@@ -1339,6 +1350,7 @@ function loadState() {
       }
     } catch(e) {}
     renderPlayers();
+    document.addEventListener('firebaseReady', subscribeTeams, { once: true });
   }
   loadLeadingDays();
 }
@@ -1365,10 +1377,8 @@ document.getElementById('add-modal').addEventListener('click', function(e) {
   if(e.target === this) closeModal();
 });
 
-// Auto-refresh data every 5 minutes
-setInterval(() => {
-  if(currentAdmin) fetchSheetData();
-}, 5 * 60 * 1000);
+// Auto-refresh data every 5 minutes (admin and visitor)
+setInterval(fetchSheetData, 5 * 60 * 1000);
 
 // ============================================================
 // MUSIC
