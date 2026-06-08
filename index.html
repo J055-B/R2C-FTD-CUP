@@ -908,7 +908,8 @@ function fetchGvizJsonp() {
       clearTimeout(timer); delete window[cbName]; script.remove();
       try { resolve(parseGvizData(json)); } catch(e) { reject(e); }
     };
-    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&callback=${cbName}&gid=${GID_SUMMARY}&headers=1`;
+    // tqx=out:json alone triggers google.visualization — must use callback param
+    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;callback:${cbName}&gid=${GID_SUMMARY}&headers=1`;
     script.onerror = () => { clearTimeout(timer); delete window[cbName]; script.remove(); reject(new Error('script load error')); };
     document.head.appendChild(script);
   });
@@ -922,8 +923,9 @@ function applyParticipants(data) {
 }
 
 function parseGvizData(json) {
-  const rows = json.table.rows;
-  const cols = json.table.cols;
+  if(!json || !json.table) return [];
+  const rows = json.table.rows || [];
+  const cols = json.table.cols || [];
 
   // Find columns by label (A=Nombre Agente, B=Total FTD)
   let nameColIdx = 0, ftdColIdx = 1;
@@ -942,7 +944,6 @@ function parseGvizData(json) {
     if(!nameCell || nameCell.v == null) return;
     const name = String(nameCell.v).trim();
     if(!name || skipNames.includes(name.toLowerCase())) return;
-    // ftdCell.v can be number or null
     let ftd = 0;
     if(ftdCell && ftdCell.v != null) {
       ftd = typeof ftdCell.v === 'number' ? Math.round(ftdCell.v) : parseInt(String(ftdCell.v).replace(/[^0-9]/g,'')) || 0;
@@ -1095,6 +1096,7 @@ function renderPlayers() {
   ['paola','nicole'].forEach(team => {
     const container = document.getElementById(`players-${team}`);
     container.innerHTML = '';
+    if(!teams[team] || !teams[team].players) return;
     teams[team].players.forEach((p, i) => {
       const participant = allParticipants.find(x => x.name.toLowerCase() === p.name.toLowerCase());
       const ftd = participant ? participant.totalFtd : 0;
